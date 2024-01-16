@@ -13,7 +13,7 @@ namespace ElasticsearchLogTest.Services
             _client = new ElasticClient(settings);
         }
 
-        public async Task<IEnumerable<LogEntry>> GetLogsAsync(string index, string query, int size = 10)
+        public async Task<IEnumerable<LogEntry>> GetLogsAsync(string index, string query, int size = 100)
         {
             var searchResponse = await _client.SearchAsync<LogEntry>(s => s
                 .Index(index)

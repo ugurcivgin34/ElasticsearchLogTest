@@ -1,28 +1,44 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Serilog;
+﻿using ElasticsearchLogTest.Core.Logger;
+using ElasticsearchLogTest.Exceptions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 
 namespace ElasticsearchLogTest.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class TestController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult Get()
+        
+        [HttpGet("business")]
+        public IActionResult TriggerBusinessException()
         {
-            Log.Information("Get işlemi başlatıldı.");
+            throw new BusinessException("İş mantığı hatası oluştu.");
+        }
 
-            try
+        [HttpGet("validation")]
+        public IActionResult TriggerValidationException()
+        {
+            var errors = new Dictionary<string, string[]>
             {
-                // Burada iş mantığınızı uygulayın...
-                // Örnek olarak bir hata oluşturalım
-                throw new InvalidOperationException("Başarıyla çalıştı");
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Get işlemi sırasında hata oluştu.");
-                return StatusCode(500, "İç Sunucu Hatası");
-            }
+                { "Field1", new string[] { "Field1 is invalid." } },
+                { "Field2", new string[] { "Field2 is required." } }
+            };
+            throw new ValidationException("Validasyon hatası oluştu.", errors);
+        }
+
+        [HttpGet("authorization")]
+        public IActionResult TriggerAuthorizationException()
+        {
+            throw new AuthorizationException("Yetkilendirme hatası oluştu.");
+        }
+
+        [HttpGet("general")]
+        public IActionResult TriggerGeneralException()
+        {
+            throw new Exception("Genel bir hata oluştu.");
         }
     }
 }

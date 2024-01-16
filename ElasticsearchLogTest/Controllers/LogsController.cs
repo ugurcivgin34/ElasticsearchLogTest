@@ -1,31 +1,20 @@
-﻿using ElasticsearchLogTest.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using ElasticsearchLogTest.Services;
+using System.Threading.Tasks;
 
 namespace ElasticsearchLogTest.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class LogsController : ControllerBase
+    [Route("[controller]")]
+    public class LogsController(ElasticsearchService elasticsearchService) : ControllerBase
     {
-        private readonly ElasticsearchService _elasticsearchService;
-
-        public LogsController(ElasticsearchService elasticsearchService)
-        {
-            _elasticsearchService = elasticsearchService;
-        }
+        private readonly ElasticsearchService _elasticsearchService = elasticsearchService;
 
         [HttpGet]
         public async Task<IActionResult> GetLogs(string query)
         {
-            try
-            {
-                var logs = await _elasticsearchService.GetLogsAsync("logstash-*", query);
-                return Ok(logs);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"İç sunucu hatası: {ex.Message}");
-            }
+            var logs = await _elasticsearchService.GetLogsAsync("logstash-*", query);
+            return Ok(logs);
         }
     }
 }
