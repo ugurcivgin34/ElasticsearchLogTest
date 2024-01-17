@@ -12,27 +12,35 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var elasticsearchUrl = new Uri("http://localhost:9200"); // Burada gerçek Elasticsearch URL'nizi kullanýn
+var elasticsearchUrl = new Uri("http://localhost:9200"); // Gerçek Elasticsearch URL'nizi kullanýn
 builder.Services.AddSingleton(new ElasticsearchService(elasticsearchUrl));
-builder.Services.AddSingleton<ILoggerService, SerilogLoggerService>();
+builder.Services.AddSingleton<ILoggerService, SerilogLoggerService>(); // GeneralLoggerService kullanýmý
 
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(elasticsearchUrl)
     {
-        AutoRegisterTemplate = true, // Elasticsearch'te index oluþturulmasýný saðlar
-        IndexFormat = "logstash-{0:yyyy.MM.dd}", // Index formatý
-        CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage: true) // Exception'larý JSON olarak loglar
+        AutoRegisterTemplate = true,
+        IndexDecider = (logEvent, offset) =>
+        {
+            // Eðer IndexName özelliði varsa kullan, yoksa varsayýlan index formatýný kullan
+            return logEvent.Properties.ContainsKey("IndexName") 
+                ? logEvent.Properties["IndexName"].ToString().Replace("\"", "") 
+                : $"logstash-{offset:yyyy.MM.dd}";
+        },
+        CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage: true)
     })
     .CreateLogger();
 
 builder.Logging.ClearProviders();
 
 
+
 var app = builder.Build();
 
 var loggerService = app.Services.GetRequiredService<ILoggerService>();
+app.UseMiddleware<AuditLogMiddleware>();
 app.UseMiddleware<ExceptionMiddleware>(loggerService);
 
 if (app.Environment.IsDevelopment())

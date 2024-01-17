@@ -1,6 +1,6 @@
-﻿using ElasticsearchLogTest.Model;
+﻿using CorePackacge.Logger.Model;
 
-namespace ElasticsearchLogTest.Core.Logger
+namespace CorePackacge.Logger.Abstract
 {
     public interface ILoggerService
     {

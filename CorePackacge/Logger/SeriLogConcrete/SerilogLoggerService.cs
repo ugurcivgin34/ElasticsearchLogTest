@@ -1,8 +1,9 @@
-﻿using ElasticsearchLogTest.Model;
+﻿using Serilog.Context;
 using Serilog;
-using Serilog.Context;
+using CorePackacge.Logger.Model;
+using CorePackacge.Logger.Abstract;
 
-namespace ElasticsearchLogTest.Core.Logger
+namespace CorePackacge.Logger.SeriLogConcrete
 {
     public class SerilogLoggerService : ILoggerService
     {
@@ -10,10 +11,11 @@ namespace ElasticsearchLogTest.Core.Logger
         {
             var indexName = $"{moduleName}-logs";
 
-            // Serilog Context'ini kullanarak dinamik index ismi belirleme
             using (LogContext.PushProperty("IndexName", indexName))
             {
-                Log.Information("User: {User}, ActionType: {ActionType}, Resource: {Resource}, MethodName: {MethodName}, Parameters: {Parameters}",
+                // 'Application' özelliği ekleyerek loglama yapın
+                Log.ForContext("Application", "Information")
+                   .Information("User: {User}, ActionType: {ActionType}, Resource: {Resource}, MethodName: {MethodName}, Parameters: {Parameters}",
                                 detail.User, detail.ActionType, detail.Resource, detail.MethodName, detail.Parameters);
             }
         }
@@ -42,5 +44,4 @@ namespace ElasticsearchLogTest.Core.Logger
             }
         }
     }
-
 }

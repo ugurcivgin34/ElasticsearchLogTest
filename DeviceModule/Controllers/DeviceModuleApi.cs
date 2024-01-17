@@ -1,14 +1,21 @@
-﻿using ElasticsearchLogTest.Exceptions;
+﻿using CorePackacge.Logger.Abstract;
+using CorePackacge.Logger.Exceptions;
+using CorePackacge.Logger.Model;
 using Microsoft.AspNetCore.Mvc;
 
-
-namespace ElasticsearchLogTest.Controllers
+namespace DeviceModule.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TestController : ControllerBase
+    public class DeviceModuleApi : ControllerBase
     {
-        
+        private readonly ILoggerService _loggerService;
+
+        public DeviceModuleApi(ILoggerService loggerService)
+        {
+            _loggerService = loggerService;
+        }
+
         [HttpGet("business")]
         public IActionResult TriggerBusinessException()
         {
@@ -18,12 +25,15 @@ namespace ElasticsearchLogTest.Controllers
         [HttpGet("validation")]
         public IActionResult TriggerValidationException()
         {
+            LogDetail logDetail = new LogDetail();
             var errors = new Dictionary<string, string[]>
             {
                 { "Field1", new string[] { "Field1 is invalid." } },
                 { "Field2", new string[] { "Field2 is required." } }
             };
-            throw new ValidationException("Validasyon hatası oluştu.", errors);
+         
+
+            return Ok();
         }
 
         [HttpGet("authorization")]

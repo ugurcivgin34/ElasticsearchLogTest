@@ -1,4 +1,4 @@
-﻿namespace ElasticsearchLogTest.Model
+﻿namespace CorePackacge.Logger.Model
 {
     public class LogDetail
     {

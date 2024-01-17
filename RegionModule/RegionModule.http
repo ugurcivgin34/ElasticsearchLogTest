@@ -1,0 +1,6 @@
+@RegionModule_HostAddress = http://localhost:5030
+
+GET {{RegionModule_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

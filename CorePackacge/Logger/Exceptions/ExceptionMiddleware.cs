@@ -1,8 +1,9 @@
-﻿using ElasticsearchLogTest.Core.Logger;
+﻿using CorePackacge.Logger.Abstract;
+using CorePackacge.Logger.Model;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using ElasticsearchLogTest.Model;
 
-namespace ElasticsearchLogTest.Exceptions
+namespace CorePackacge.Logger.Exceptions
 {
     public class ExceptionMiddleware
     {
