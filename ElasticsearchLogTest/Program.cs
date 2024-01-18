@@ -12,21 +12,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var elasticsearchUrl = new Uri("http://localhost:9200"); // Gerçek Elasticsearch URL'nizi kullanýn
+var elasticsearchUrl = new Uri("http://localhost:9200"); 
 builder.Services.AddSingleton(new ElasticsearchService(elasticsearchUrl));
-builder.Services.AddSingleton<ILoggerService, SerilogLoggerService>(); // GeneralLoggerService kullanýmý
+builder.Services.AddSingleton<ILoggerService, SerilogLoggerService>(); 
 
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console()
+    .MinimumLevel.Debug()
     .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(elasticsearchUrl)
     {
         AutoRegisterTemplate = true,
         IndexDecider = (logEvent, offset) =>
         {
-            // Eðer IndexName özelliði varsa kullan, yoksa varsayýlan index formatýný kullan
             return logEvent.Properties.ContainsKey("IndexName") 
-                ? logEvent.Properties["IndexName"].ToString().Replace("\"", "") 
+                ? logEvent.Properties["IndexName"].ToString().Replace("\"", "").ToLower()
                 : $"logstash-{offset:yyyy.MM.dd}";
         },
         CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage: true)
@@ -34,7 +34,6 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Logging.ClearProviders();
-
 
 
 var app = builder.Build();

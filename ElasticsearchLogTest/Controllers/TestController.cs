@@ -1,17 +1,33 @@
-﻿using ElasticsearchLogTest.Exceptions;
+﻿using ElasticsearchLogTest.Core.Logger;
+using ElasticsearchLogTest.Exceptions;
+using ElasticsearchLogTest.Model;
 using Microsoft.AspNetCore.Mvc;
 
 
 namespace ElasticsearchLogTest.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Device/[controller]")]
     [ApiController]
     public class TestController : ControllerBase
     {
-        
+        private readonly ILoggerService _loggerService;
+
+        public TestController(ILoggerService loggerService)
+        {
+            _loggerService = loggerService;
+        }
+
         [HttpGet("business")]
         public IActionResult TriggerBusinessException()
         {
+            _loggerService.LogInformation("Device", new LogDetail
+            {
+                User = "Şerefsizzzzz",
+                ActionType = "UserAction",
+                Resource = "context.Request.Path",
+                MethodName = "methodName",
+                ModuleName = "moduleName"
+            });
             throw new BusinessException("İş mantığı hatası oluştu.");
         }
 

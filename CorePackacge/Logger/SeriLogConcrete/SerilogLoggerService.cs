@@ -12,11 +12,10 @@ namespace CorePackacge.Logger.SeriLogConcrete
             var indexName = $"{moduleName}-logs";
 
             using (LogContext.PushProperty("IndexName", indexName))
+            using (LogContext.PushProperty("Application", "Information"))
             {
-                // 'Application' özelliği ekleyerek loglama yapın
-                Log.ForContext("Application", "Information")
-                   .Information("User: {User}, ActionType: {ActionType}, Resource: {Resource}, MethodName: {MethodName}, Parameters: {Parameters}",
-                                detail.User, detail.ActionType, detail.Resource, detail.MethodName, detail.Parameters);
+                Log.Information("{User} performed {ActionType} on {Resource} in {ModuleName}, Method: {MethodName}, Description: {Description}, Parameters: {Parameters}",
+                            detail.User, detail.ActionType, detail.Resource, moduleName, detail.MethodName, detail.Description, detail.Parameters);
             }
         }
 

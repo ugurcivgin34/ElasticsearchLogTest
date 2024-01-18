@@ -11,7 +11,11 @@ namespace ElasticsearchLogTest.Exceptions
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var moduleName = context.Request.Headers["ModuleName"].FirstOrDefault() ?? "default";
+            var requestUrl = context.Request.Path.Value;
+            var segments = requestUrl?.Split('/');
+            var firstSegment = segments?[2];
+            var moduleName = firstSegment ?? "-";
+
             var endpoint = context.GetEndpoint();
             var routeData = endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
 
@@ -24,10 +28,10 @@ namespace ElasticsearchLogTest.Exceptions
             var logDetail = new LogDetail
             {
                 User ="uğur okan ",
-                ActionType = "UserAction",
+                ActionType = $"{moduleName}Action",
                 Resource = context.Request.Path,
                 MethodName = methodName,
-                Parameters = [] // Burada gerekli parametreleri ekleyebilirsiniz
+                ModuleName=moduleName,
             };
 
             // İsteği işleyin

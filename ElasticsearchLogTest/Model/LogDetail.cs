@@ -7,6 +7,6 @@
         public string? Resource { get; set; } // Etkilenen kaynak, örneğin: "UserProfile", "Order" vb.
         public string? MethodName { get; set; }
         public string? ExceptionMessage { get; set; }
-        public Dictionary<string, object> Parameters { get; set; }
+        public string? ModuleName { get; set; }
     }
 }

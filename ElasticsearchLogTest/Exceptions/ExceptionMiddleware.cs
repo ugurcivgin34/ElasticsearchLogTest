@@ -1,23 +1,31 @@
 ﻿using ElasticsearchLogTest.Core.Logger;
 using Newtonsoft.Json;
 using ElasticsearchLogTest.Model;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace ElasticsearchLogTest.Exceptions
 {
-    public class ExceptionMiddleware
+    public class ExceptionMiddleware(RequestDelegate next, ILoggerService loggerService)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILoggerService _loggerService;
-
-        public ExceptionMiddleware(RequestDelegate next, ILoggerService loggerService)
-        {
-            _next = next;
-            _loggerService = loggerService;
-        }
+        private readonly RequestDelegate _next = next;
+        private readonly ILoggerService _loggerService = loggerService;
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var moduleName = context.Request.Headers["ModuleName"].FirstOrDefault() ?? "default";
+            var requestUrl = context.Request.Path.Value;
+            var segments = requestUrl.Split('/');
+            var firstSegment = segments[2];
+            var moduleName = firstSegment ?? "default";
+
+            var endpoint = context.GetEndpoint();
+            var routeData = endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
+
+            var controllerName = routeData?.ControllerName;
+            var actionName = routeData?.ActionName;
+            var methodName = controllerName != null && actionName != null
+                             ? $"{controllerName}.{actionName}"
+                             : "-";
+
             try
             {
                 await _next(context);
@@ -27,9 +35,10 @@ namespace ElasticsearchLogTest.Exceptions
                 var logDetail = new LogDetail
                 {
                     User = "Uğur Okan Çivgin",
-                    MethodName = context.Request.Path,
+                    MethodName = methodName,
                     ExceptionMessage = ex.Message,
-                    ActionType = "Error",
+                    ActionType = $"{moduleName}Action",
+                    ModuleName = moduleName,
                     Resource = context.Request.Path // Örnek olarak, talep edilen kaynağı kullanabilirsiniz
                 };
 

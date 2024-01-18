@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-CorePackacge.Logger.Configuration.LogConfiguration.ConfigureLogging(builder);
+LogConfiguration.ConfigureLogging(builder);
 
 var app = builder.Build();
 
@@ -19,7 +19,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCorePackageMiddlewares();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

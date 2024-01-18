@@ -1,6 +1,4 @@
-﻿using CorePackacge.Logger.Abstract;
-using CorePackacge.Logger.Exceptions;
-using CorePackacge.Logger.Model;
+﻿using CorePackacge.Logger.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DeviceModule.Controllers
@@ -9,9 +7,9 @@ namespace DeviceModule.Controllers
     [ApiController]
     public class DeviceModuleApi : ControllerBase
     {
-        private readonly ILoggerService _loggerService;
+        private readonly CorePackacge.Logger.Abstract.ILoggerService _loggerService;
 
-        public DeviceModuleApi(ILoggerService loggerService)
+        public DeviceModuleApi(CorePackacge.Logger.Abstract.ILoggerService loggerService)
         {
             _loggerService = loggerService;
         }
@@ -19,7 +17,22 @@ namespace DeviceModule.Controllers
         [HttpGet("business")]
         public IActionResult TriggerBusinessException()
         {
-            throw new BusinessException("İş mantığı hatası oluştu.");
+            var logDetails = new LogDetail
+            {
+                User = "xx",
+                ActionType = "Create",
+                Resource = "Device",
+                MethodName = "AddDevice",
+                Description = "Adding a new device",
+                Parameters = new Dictionary<string, object>
+    {
+        {"DeviceId", 123},
+        {"DeviceName", "New Device"}
+                }
+            };
+
+            _loggerService.LogError("DeviceModule", logDetails);
+            return Ok();
         }
 
         [HttpGet("validation")]
@@ -36,16 +49,14 @@ namespace DeviceModule.Controllers
             return Ok();
         }
 
-        [HttpGet("authorization")]
-        public IActionResult TriggerAuthorizationException()
-        {
-            throw new AuthorizationException("Yetkilendirme hatası oluştu.");
-        }
+        //[HttpGet("authorization")]
+        //public IActionResult TriggerAuthorizationException()
+        //{
+        //}
 
-        [HttpGet("general")]
-        public IActionResult TriggerGeneralException()
-        {
-            throw new Exception("Genel bir hata oluştu.");
-        }
+        //[HttpGet("general")]
+        //public IActionResult TriggerGeneralException()
+        //{
+        //}
     }
 }
